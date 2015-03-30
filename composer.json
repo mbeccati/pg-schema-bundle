@@ -1,0 +1,24 @@
+{
+  "name": "beccati/pg-schema-bundle",
+  "type": "symfony-bundle",
+  "description": "A database schema manager for Postgres and Symfony2",
+  "keywords": ["postgres", "postgresql", "pgsql", "symfony2", "schema", "migrations"],
+  "homepage": "https://github.com/mbeccati/pg-schema-bundle",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Matteo Beccati",
+      "email": "matteo@beccati.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.9",
+    "symfony/framework-bundle": "~2.3",
+    "symfony/console": "~2.3",
+    "symfony/yaml": "~2.3",
+    "symfony/finder": "~2.3"
+  },
+  "autoload": {
+    "psr-4": { "Beccati\\PgSchemaBundle\\": "" }
+  }
+}

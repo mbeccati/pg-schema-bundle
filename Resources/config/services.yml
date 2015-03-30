@@ -1,0 +1,7 @@
+services:
+    beccati_pg_schema.manager.database:
+        class: Beccati\PgSchemaBundle\Manager\DatabaseManager
+        arguments: [ "@service_container" ]
+    beccati_pg_schema.manager.upgrade:
+        class: Beccati\PgSchemaBundle\Manager\UpgradeManager
+        arguments: [ "@service_container" ]
