@@ -2,9 +2,11 @@
 
 namespace Beccati\PgSchemaBundle\Command;
 
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 
 class UpgradeCommand extends Base
@@ -33,7 +35,12 @@ class UpgradeCommand extends Base
             $input->getOption('from'),
             $input->getOption('to'),
             $input->getOption('dry-run'),
-            $input->getOption('force') ? null : $this->getHelperSet()->get('dialog')
+            $input->getOption('force') ? null : function () use ($input, $output) {
+                $helper = new QuestionHelper();
+                $question = new ConfirmationQuestion('Continue with this action?', false);
+
+                return $helper->ask($input, $output, $question);
+            }
         );
 
         return $success ? 0 : 1;

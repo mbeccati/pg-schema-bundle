@@ -3,7 +3,6 @@
 namespace Beccati\PgSchemaBundle\Manager;
 
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Console\Helper\DialogHelper;
 use Symfony\Component\Filesystem\Filesystem;
 
 
@@ -15,12 +14,12 @@ class UpgradeManager extends DatabaseManager
      * @param int $versionFrom
      * @param int $versionTo
      * @param bool $dryRun
-     * @param DialogHelper $dialog
+     * @param callback $question
      *
      * @return bool
      * @throws \Exception
      */
-    public function upgrade($versionFrom = null, $versionTo = null, $dryRun = false, DialogHelper $dialog = null)
+    public function upgrade($versionFrom = null, $versionTo = null, $dryRun = false, $question = null)
     {
         try {
             $currentVersion = $this->getDbVersion();
@@ -94,11 +93,7 @@ class UpgradeManager extends DatabaseManager
             return true;
         }
 
-        if ($dialog && $this->output && !$dialog->askConfirmation(
-                $this->output,
-                '<question>Continue with this action?</question> ',
-                false
-            )) {
+        if (null !== $question && !$question()) {
             $this->logError("\nUpgrade aborted\n");
             return false;
         }

@@ -4,15 +4,18 @@ namespace Beccati\PgSchemaBundle\Manager;
 
 use Beccati\PgSchemaBundle\Manager\Filter\FilterInterface;
 
-use Symfony\Component\DependencyInjection\ContainerAware;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Dumper;
 use Symfony\Component\Console\Output\OutputInterface;
 
 
-class DatabaseManager extends ContainerAware
+class DatabaseManager implements ContainerAwareInterface
 {
+    use ContainerAwareTrait;
+
     /**
      * @var \PDO
      */
