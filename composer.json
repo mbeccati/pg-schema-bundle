@@ -20,6 +20,6 @@
     "doctrine/dbal": ">=2.3"
   },
   "autoload": {
-    "psr-4": { "Beccati\\PgSchemaBundle\\": "" }
+    "psr-4": { "Beccati\\PgSchemaBundle\\": "src" }
   }
 }
