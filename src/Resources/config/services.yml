@@ -1,7 +1,20 @@
 services:
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    Beccati\PgSchemaBundle\:
+        resource: '../../*'
+        exclude: '../../{DependencyInjection,Entity,Migrations,Tests}'
+
     beccati_pg_schema.manager.database:
         class: Beccati\PgSchemaBundle\Manager\DatabaseManager
         arguments: [ "@service_container" ]
+        public: true
+
     beccati_pg_schema.manager.upgrade:
         class: Beccati\PgSchemaBundle\Manager\UpgradeManager
         arguments: [ "@service_container" ]
+        public: true
