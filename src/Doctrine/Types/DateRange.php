@@ -8,7 +8,7 @@ use Beccati\PgSchemaBundle\Model;
 
 class DateRange extends Type
 {
-    public function getName()
+    public function getName(): string
     {
         return 'DateRange';
     }
@@ -18,7 +18,7 @@ class DateRange extends Type
         return 'daterange';
     }
 
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform): mixed
     {
         $result = new Model\DateRange();
         $result->fromString($value);
@@ -26,7 +26,7 @@ class DateRange extends Type
         return $result;
     }
 
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform): mixed
     {
         return (string)$value;
     }

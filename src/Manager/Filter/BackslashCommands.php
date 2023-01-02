@@ -2,7 +2,6 @@
 
 namespace Beccati\PgSchemaBundle\Manager\Filter;
 
-
 class BackslashCommands implements FilterInterface
 {
     public function __construct($dir)

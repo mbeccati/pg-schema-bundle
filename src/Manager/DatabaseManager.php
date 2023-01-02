@@ -3,7 +3,8 @@
 namespace Beccati\PgSchemaBundle\Manager;
 
 use Beccati\PgSchemaBundle\Manager\Filter\FilterInterface;
-
+use Doctrine\DBAL\Connection;
+use PDO;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -11,58 +12,23 @@ use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Dumper;
 use Symfony\Component\Console\Output\OutputInterface;
 
-
-class DatabaseManager implements ContainerAwareInterface
+class DatabaseManager
 {
-    use ContainerAwareTrait;
+    protected PDO $pdo;
+    protected OutputInterface $output;
+    protected int $version = 0;
+    protected array $schemas = ['public'];
+    protected array $extensions = [];
+    protected bool $unlogged = false;
 
     /**
-     * @var \PDO
+     * @var array<FilterInterface>
      */
-    protected $pdo;
+    private array $filters = [];
 
-    /**
-     *
-     * @var OutputInterface
-     */
-    protected $output;
-
-    /**
-     * @var int
-     */
-    protected $version = 0;
-
-    /**
-     * @var array
-     */
-    protected $schemas = array('public');
-
-    /**
-     * @var array
-     */
-    protected $extensions = array();
-
-    /**
-     * @var bool
-     */
-    protected $unlogged = false;
-
-    /**
-     * @var FilterInterface[]
-     */
-    private $filters = array();
-
-
-    /**
-     * The constructor.
-     *
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
+    public function __construct(Connection $dbalConnection)
     {
-        $this->setContainer($container);
-
-        $this->pdo = $this->container->get('doctrine.dbal.default_connection')->getWrappedConnection();
+        $this->pdo = $dbalConnection->getWrappedConnection()->getNativeConnection();
     }
 
     /**
@@ -72,7 +38,7 @@ class DatabaseManager implements ContainerAwareInterface
      *
      * @throws \Exception
      */
-    public function createTables($version = null)
+    public function createTables(int $version = null): void
     {
         try {
             $existingVersion = $this->getDbVersion();
@@ -122,7 +88,7 @@ class DatabaseManager implements ContainerAwareInterface
      *
      * @throws \Exception
      */
-    protected function init($dir)
+    protected function init(string $dir): void
     {
         $conf = $this->parseConfiguration($dir.'/config.yml');
 
@@ -134,7 +100,7 @@ class DatabaseManager implements ContainerAwareInterface
     /**
      * Creates the database extensions.
      */
-    protected function createExtensions()
+    protected function createExtensions(): void
     {
         foreach ($this->extensions as $extension) {
             if (!$this->checkExtension($extension)) {
@@ -145,40 +111,32 @@ class DatabaseManager implements ContainerAwareInterface
 
     /**
      * Sets the output handler.
-     *
-     * @param OutputInterface $output
      */
-    public function setOutput(OutputInterface $output)
+    public function setOutput(OutputInterface $output): void
     {
         $this->output = $output;
     }
 
     /**
      * Gets the output handler.
-     *
-     * @return OutputInterface
      */
-    public function getOutput()
+    public function getOutput(): OutputInterface
     {
         return $this->output;
     }
 
     /**
      * Sets the unlogged parameter.
-     *
-     * @param bool $unlogged
      */
-    public function setUnlogged($unlogged)
+    public function setUnlogged(bool $unlogged)
     {
-        $this->unlogged = (bool)$unlogged;
+        $this->unlogged = $unlogged;
     }
 
     /**
      * Gets the unlogged parameter.
-     *
-     * @return bool
      */
-    public function getUnlogged()
+    public function getUnlogged(): bool
     {
         return $this->unlogged;
     }
@@ -186,12 +144,9 @@ class DatabaseManager implements ContainerAwareInterface
     /**
      * Reads an sql file, applying the registered filters.
      *
-     * @param string $file
-     *
-     * @return string
      * @throws \Exception
      */
-    protected function readSqlFile($file)
+    protected function readSqlFile(string $file): string
     {
         if (!file_exists($file)) {
             throw new \Exception("Coundn't find {$file}");
@@ -210,11 +165,9 @@ class DatabaseManager implements ContainerAwareInterface
     /**
      * Executes an SQL file, applying the registered filters.
      *
-     * @param string $file
-     *
      * @throws \Exception
      */
-    protected function executeSqlFile($file)
+    protected function executeSqlFile(string $file): void
     {
         $this->log("Loading %s", $file);
         $sql = $this->readSqlFile($file);
@@ -225,60 +178,42 @@ class DatabaseManager implements ContainerAwareInterface
 
     /**
      * Checks if the Postgres extension is already installed.
-     *
-     * @param string $extension
-     *
-     * @return bool
      */
-    protected function checkExtension($extension)
+    protected function checkExtension(string $extension): bool
     {
         return (bool)$this->pdo->query("SELECT 1 FROM pg_extension WHERE extname = '{$extension}' LIMIT 1")->rowCount();
     }
 
     /**
      * Installs a Postgres extension.
-     *
-     * @param string $extension
-     *
-     * @return bool
      */
-    private function installExtension($extension)
+    private function installExtension(string $extension): bool
     {
         return (bool)$this->pdo->exec("CREATE EXTENSION {$extension}");
     }
 
     /**
      * Gets the current database schema version.
-     *
-     * @return int
      */
-    protected function getDbVersion()
+    protected function getDbVersion(): int
     {
         return (int)$this->pdo->query("SELECT * FROM version")->fetchColumn();
     }
 
     /**
      * Updates the schema version on the database.
-     *
-     * @param $version
-     *
-     * @return int
      */
-    protected function setDbVersion($version)
+    protected function setDbVersion(int $version): int
     {
-        $version = (int)$version;
         return $this->pdo->exec("TRUNCATE version; INSERT INTO version VALUES ({$version})");
     }
 
     /**
      * Parse the configuration file.
      *
-     * @param string $file
-     *
-     * @return mixed
      * @throws \Exception
      */
-    protected function parseConfiguration($file)
+    protected function parseConfiguration(stirng $file): mixed
     {
         $yaml = new Parser();
 
@@ -291,13 +226,8 @@ class DatabaseManager implements ContainerAwareInterface
 
     /**
      * Dumps the configuration file.
-     *
-     * @param string $file
-     * @param mixed $conf
-     *
-     * @return bool
      */
-    protected function saveConfiguration($file, $conf)
+    protected function saveConfiguration(string $file, mixed $conf): bool
     {
         $yaml = new Dumper();
 
@@ -308,10 +238,8 @@ class DatabaseManager implements ContainerAwareInterface
 
     /**
      * Get the path to the "pgschema" root directory.
-     *
-     * @return string
      */
-    protected function getRootDir()
+    protected function getRootDir(): string
     {
         return $this->container->getParameter('kernel.root_dir').'/Resources/pgschema/';
     }
@@ -319,12 +247,9 @@ class DatabaseManager implements ContainerAwareInterface
     /**
      * Gets the data dir for a specific schema version.
      *
-     * @param int $version
-     *
-     * @return string
      * @throws \Exception
      */
-    protected function getDataDir($version)
+    protected function getDataDir(int $version): string
     {
         $dir = $this->getRootDir();
 
@@ -345,9 +270,8 @@ class DatabaseManager implements ContainerAwareInterface
      * Register a new filter, passing $options to the Filter constructor.
      *
      * @param string $name The class name (w/o namespace)
-     * @param mixed $options
      */
-    protected function addFilter($name, $options = null)
+    protected function addFilter(string $name, array $options = null)
     {
         $className = __NAMESPACE__.'\\Filter\\'.$name;
         $this->filters[$name] = new $className($options);
@@ -358,7 +282,7 @@ class DatabaseManager implements ContainerAwareInterface
      */
     public function clearFilters()
     {
-        $this->filters = array();
+        $this->filters = [];
     }
 
     /**
@@ -380,51 +304,41 @@ class DatabaseManager implements ContainerAwareInterface
 
     /**
      * Variadic log function (sprintf format).
-     *
-     * @param $str
      */
-    public function log($str)
+    public function log(...$args)
     {
-        $this->_log(func_get_args());
+        $this->_log($args);
     }
 
     /**
      * Variadic log function (sprintf format, INFO level).
-     *
-     * @param $str
      */
-    public function logInfo($str)
+    public function logInfo(...$args)
     {
-        $this->_log(func_get_args(), 'info');
+        $this->_log($args, 'info');
     }
 
     /**
      * Variadic log function (sprintf format, COMMENT level).
-     *
-     * @param $str
      */
-    public function logComment($str)
+    public function logComment(...$args)
     {
-        $this->_log(func_get_args(), 'comment');
+        $this->_log($args, 'comment');
     }
 
     /**
      * Variadic log function (sprintf format, QUESTION level).
-     *
-     * @param $str
      */
-    public function logQuestion($str)
+    public function logQuestion(...$args)
     {
-        $this->_log(func_get_args(), 'question');
+        $this->_log($args, 'question');
     }
 
     /**
      * Variadic log function (sprintf format, ERROR level).
-     *
-     * @param $str
      */
-    public function logError($str)
+    public function logError(...$args)
     {
-        $this->_log(func_get_args(), 'error');
+        $this->_log($args, 'error');
     }
 }

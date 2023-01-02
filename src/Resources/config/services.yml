@@ -10,11 +10,9 @@ services:
         exclude: '../../{DependencyInjection,Entity,Migrations,Tests}'
 
     beccati_pg_schema.manager.database:
-        class: Beccati\PgSchemaBundle\Manager\DatabaseManager
-        arguments: [ "@service_container" ]
+        alias: Beccati\PgSchemaBundle\Manager\DatabaseManager
         public: true
 
     beccati_pg_schema.manager.upgrade:
-        class: Beccati\PgSchemaBundle\Manager\UpgradeManager
-        arguments: [ "@service_container" ]
+        alias: Beccati\PgSchemaBundle\Manager\UpgradeManager
         public: true

@@ -2,7 +2,6 @@
 
 namespace Beccati\PgSchemaBundle\Manager\Filter;
 
-
 class Unlogged implements FilterInterface
 {
     public function filter($sql)

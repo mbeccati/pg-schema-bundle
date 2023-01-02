@@ -2,7 +2,6 @@
 
 namespace Beccati\PgSchemaBundle\Manager\Filter;
 
-
 interface FilterInterface
 {
     /**

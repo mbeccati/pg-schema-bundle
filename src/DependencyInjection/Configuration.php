@@ -15,14 +15,12 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritDoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('beccati_pg_schema');
+        $treeBuilder = new TreeBuilder('beccati_pg_schema');
 
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
+        // ... add node definitions to the root of the tree
+        // $treeBuilder->getRootNode()->...
 
         return $treeBuilder;
     }

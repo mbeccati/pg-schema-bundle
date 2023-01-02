@@ -2,17 +2,23 @@
 
 namespace Beccati\PgSchemaBundle\Command;
 
+use Beccati\PgSchemaBundle\Manager\UpgradeManager;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-
 class UpgradeCommand extends Base
 {
     static protected $commandName = 'upgrade';
     static protected $commandDesc = 'Upgrade the schema';
+
+    public function __construct(
+        public UpgradeManager $upgradeManager,
+    ) {
+        parent::__construct();
+    }
 
     protected function configure()
     {
@@ -25,13 +31,11 @@ class UpgradeCommand extends Base
         //$this->addOption('create', 'c', InputOption::VALUE_NONE, 'Create the schema if the database is empty');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $db = $this->getContainer()->get('beccati_pg_schema.manager.upgrade');
+        $this->upgradeManager->setOutput($output);
 
-        $db->setOutput($output);
-
-        $success = $db->upgrade(
+        $success = $this->upgradeManager->upgrade(
             $input->getOption('from'),
             $input->getOption('to'),
             $input->getOption('dry-run'),

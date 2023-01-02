@@ -2,29 +2,27 @@
 
 namespace Beccati\PgSchemaBundle\Command;
 
+use Beccati\PgSchemaBundle\Manager\UpgradeManager;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
 
 class BumpCommand extends Base
 {
     static protected $commandName = 'bump';
     static protected $commandDesc = 'Bump version';
 
-    protected function configure()
-    {
-        parent::configure();
+    public function __construct(
+        public UpgradeManager $upgradeManager,
+    ) {
+        parent::__construct();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $db = $this->getContainer()->get('beccati_pg_schema.manager.upgrade');
+        $this->upgradeManager->setOutput($output);
 
-        $db->setOutput($output);
-
-        $success = $db->bumpVersion();
+        $success = $this->upgradeManager->bumpVersion();
 
         return $success ? 0 : 1;
     }
 }
-

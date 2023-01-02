@@ -5,7 +5,6 @@ namespace Beccati\PgSchemaBundle\Manager;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
 
-
 class UpgradeManager extends DatabaseManager
 {
     /**

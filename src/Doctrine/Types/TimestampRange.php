@@ -8,7 +8,7 @@ use Beccati\PgSchemaBundle\Model;
 
 class TimestampRange extends Type
 {
-    public function getName()
+    public function getName(): string
     {
         return 'TimestampRange';
     }
@@ -18,7 +18,7 @@ class TimestampRange extends Type
         return 'tsrange';
     }
 
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform): mixed
     {
         $result = new Model\DateTimeRange();
         $result->fromString($value);
@@ -26,7 +26,7 @@ class TimestampRange extends Type
         return $result;
     }
 
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform): mixed
     {
         return (string)$value;
     }

@@ -2,15 +2,21 @@
 
 namespace Beccati\PgSchemaBundle\Command;
 
+use Beccati\PgSchemaBundle\Manager\DatabaseManager;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
-
 
 class CreateCommand extends Base
 {
     static protected $commandName = 'create';
     static protected $commandDesc = 'Create the schema';
+
+    public function __construct(
+        public DatabaseManager $databaseManager,
+    ) {
+        parent::__construct();
+    }
 
     protected function configure()
     {
@@ -19,15 +25,13 @@ class CreateCommand extends Base
         $this->addOption('unlogged', 'u', InputOption::VALUE_NONE, 'If set, all the tables will be created as unlogged');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $db = $this->getContainer()->get('beccati_pg_schema.manager.database');
+        $this->databaseManager->setOutput($output);
 
-        $db->setOutput($output);
+        $this->databaseManager->setUnlogged($input->getOption('unlogged'));
 
-        $db->setUnlogged($input->getOption('unlogged'));
-
-        $db->createTables();
+        $this->databaseManager->createTables();
     }
 }
 

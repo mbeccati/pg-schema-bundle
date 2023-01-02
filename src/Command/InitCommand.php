@@ -5,14 +5,12 @@ namespace Beccati\PgSchemaBundle\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-
 class InitCommand extends Base
 {
     static protected $commandName = 'init';
     static protected $commandDesc = 'Initialize the project schema folder';
 
-
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $root = $this->getContainer()->getParameter('kernel.root_dir').'/Resources/pgschema';
 
