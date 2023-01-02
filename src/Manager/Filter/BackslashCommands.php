@@ -9,7 +9,7 @@ class BackslashCommands implements FilterInterface
         $this->dir = $dir;
     }
 
-    public function filter($sql)
+    public function filter(string $sql): string
     {
         $dir = $this->dir;
 

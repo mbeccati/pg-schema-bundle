@@ -7,8 +7,8 @@ interface FilterInterface
     /**
      * An SQL filter interface
      *
-     * @param string $str Text to filter
+     * @param string $sql Text to filter
      * @return string Filtered text
      */
-    public function filter($sql);
+    public function filter(string $sql): string;
 }
